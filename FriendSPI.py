@@ -1,33 +1,62 @@
 import streamlit as st
+import google.generativeai as genai
+from groq import Groq
+import os
 
-st.set_page_config(page_title="FriendSPI", layout="wide")
+# 1. Make the website look wide and clean
+st.set_page_config(page_title="FriendSPI", page_icon="🤖", layout="wide")
 
+# 2. Build the Sidebar Options
 with st.sidebar:
-    st.title("⚙️ Settings")
-    ai_engine = st.radio("Choose AI:", ["Groq", "Gemini"])
+    st.title("⚙️ FriendSPI Settings")
+    ai_engine = st.radio("Choose your AI Brain:", ["Groq", "Gemini"])
+    st.divider()
     if st.button("🗑️ Clear Chat"):
         st.session_state.messages = []
         st.rerun()
 
-st.title("FriendSPI 🧠")
+# 3. Main Chat Screen
+st.title("FriendSPI - Meet Your New AI Friend")
 
+# Create a memory for the chat
 if "messages" not in st.session_state:
     st.session_state.messages = []
 
+# Show all the past messages on the screen
 for msg in st.session_state.messages:
     with st.chat_message(msg["role"]):
         st.markdown(msg["content"])
 
-if prompt := st.chat_input("Type here..."):
+# 4. The Chat Input Box
+if prompt := st.chat_input("Ask FriendSPI something..."):
+    # Show what the user typed
     st.session_state.messages.append({"role": "user", "content": prompt})
     with st.chat_message("user"):
         st.markdown(prompt)
 
+    # 5. The AI Answers
     with st.chat_message("assistant"):
-        if ai_engine == "Groq":
-            response = "Groq is working!" # Put your Groq code here later
-        else:
-            response = "Gemini is working!" # Put your Gemini code here later
-        
+        try:
+            if ai_engine == "Groq":
+                # The Groq Brain
+                groq_key = os.environ.get("GROQ_API_KEY")
+                client = Groq(api_key=groq_key)
+                chat_completion = client.chat.completions.create(
+                    messages=[{"role": "user", "content": prompt}],
+                    model="llama3-8b-instant"
+                )
+                response = chat_completion.choices[0].message.content
+
+            elif ai_engine == "Gemini":
+                # The Gemini Brain
+                gemini_key = os.environ.get("GOOGLE_API_KEY")
+                genai.configure(api_key=gemini_key)
+                model = genai.GenerativeModel('gemini-1.5-pro')
+                gemini_response = model.generate_content(prompt)
+                response = gemini_response.text
+
+        except Exception as e:
+            response = "Oops! Sorry😔, Something went wrong. Please check your Internet connection and Retry again."
+            
         st.markdown(response)
         st.session_state.messages.append({"role": "assistant", "content": response})
