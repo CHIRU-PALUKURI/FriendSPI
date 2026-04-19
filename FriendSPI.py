@@ -41,7 +41,7 @@ if prompt := st.chat_input("Ask FriendSPI something..."):
                 client = Groq(api_key=groq_key)
                 chat_completion = client.chat.completions.create(
                     messages=[{"role": "user", "content": prompt}],
-                    model="llama3-8b-instant"
+                    model="llama-3.1-8b-instant"
                 )
                 response = chat_completion.choices[0].message.content
 
