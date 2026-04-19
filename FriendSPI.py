@@ -50,7 +50,7 @@ if prompt := st.chat_input("Ask FriendSPI something..."):
                 gemini_key = st.secrets["GOOGLE_API_KEY"]
                 client = genai.Client(api_key=gemini_key)
                 gemini_response = client.models.generate_content(
-                    model='gemini-3.1-pro',
+                    model='gemini-3.1-pro-preview',
                     contents=prompt
                 )
                 response = gemini_response.text
