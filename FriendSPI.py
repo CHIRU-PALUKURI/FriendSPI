@@ -1,7 +1,6 @@
 import streamlit as st
-import google.generativeai as genai
+from google import genai  # <-- Google's new package name!
 from groq import Groq
-import os
 
 # 1. Make the website look wide and clean
 st.set_page_config(page_title="FriendSPI", page_icon="🤖", layout="wide")
@@ -16,7 +15,7 @@ with st.sidebar:
         st.rerun()
 
 # 3. Main Chat Screen
-st.title("FriendSPI - Meet Your New AI Friend")
+st.title("FriendSPI: Meet Your New AI Friend")
 
 # Create a memory for the chat
 if "messages" not in st.session_state:
@@ -38,8 +37,7 @@ if prompt := st.chat_input("Ask FriendSPI something..."):
     with st.chat_message("assistant"):
         try:
             if ai_engine == "Groq":
-                # The Groq Brain
-                groq_key = os.environ.get("GROQ_API_KEY")
+                groq_key = st.secrets["GROQ_API_KEY"]
                 client = Groq(api_key=groq_key)
                 chat_completion = client.chat.completions.create(
                     messages=[{"role": "user", "content": prompt}],
@@ -48,15 +46,17 @@ if prompt := st.chat_input("Ask FriendSPI something..."):
                 response = chat_completion.choices[0].message.content
 
             elif ai_engine == "Gemini":
-                # The Gemini Brain
-                gemini_key = os.environ.get("GOOGLE_API_KEY")
-                genai.configure(api_key=gemini_key)
-                model = genai.GenerativeModel('gemini-1.5-pro')
-                gemini_response = model.generate_content(prompt)
+                # Google's Brand New Code Structure
+                gemini_key = st.secrets["GOOGLE_API_KEY"]
+                client = genai.Client(api_key=gemini_key)
+                gemini_response = client.models.generate_content(
+                    model='gemini-1.5-pro',
+                    contents=prompt
+                )
                 response = gemini_response.text
 
         except Exception as e:
-            response = "Oops! Sorry😔, Something went wrong. Please check your Internet connection and Retry again."
+            response = f"Oops! Sorry😔, Something went wrong. Don't worry it's just a System Error. (Hidden error code: {e})"
             
         st.markdown(response)
         st.session_state.messages.append({"role": "assistant", "content": response})
