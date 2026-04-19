@@ -15,7 +15,7 @@ with st.sidebar:
         st.rerun()
 
 # 3. Main Chat Screen
-st.title("FriendSPI: Meet Your New AI Friend")
+st.title("FriendSPI - Meet Your New AI Friend")
 
 # Create a memory for the chat
 if "messages" not in st.session_state:
@@ -50,7 +50,7 @@ if prompt := st.chat_input("Ask FriendSPI something..."):
                 gemini_key = st.secrets["GOOGLE_API_KEY"]
                 client = genai.Client(api_key=gemini_key)
                 gemini_response = client.models.generate_content(
-                    model='gemini-1.5-pro',
+                    model='gemini-3.1-pro',
                     contents=prompt
                 )
                 response = gemini_response.text
